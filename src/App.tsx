@@ -80,6 +80,51 @@ const getProductionVideoUrl = (url: string | undefined): string => {
   return s;
 };
 
+const IMAGE_MAPPINGS: Record<string, string> = {
+  // Covers
+  'huancai_cover.jpg': 'regenerated_image_1779820977423.jpg',
+  'pinpai_xushi_cover.png': 'regenerated_image_1779820981837.jpg',
+  'wangluo_qushi_cover.jpg': 'regenerated_image_1779820983347.jpg',
+  'chuangyi_gongzuoliu_cover.jpg': 'grape_billboard_mockup_1779821815613.png',
+  'guangying_zhixi_cover.jpg': 'regenerated_image_1779820977423.jpg',
+  'saibo_mengjing_cover.png': 'regenerated_image_1779820981837.jpg',
+  'jingmi_xushi_cover.png': 'regenerated_image_1779820983347.jpg',
+  'jijian_shiyanshi_cover.png': 'grape_billboard_mockup_1779821815613.png',
+  
+  // Slide images for projects
+  'huan_cai_1.png': 'regenerated_image_1779820977423.jpg',
+  'huan_cai_2.png': 'regenerated_image_1779820981837.jpg',
+  'huan_cai_3.png': 'regenerated_image_1779820983347.jpg',
+  'huan_cai_4.png': 'yunduan_huxi_cover.png',
+  'huan_cai_5.png': 'minimalist_symbol_cover.jpg',
+  'huan_cai_6.png': 'weidu_zhedie_cover.jpg',
+  'weidu_zhedie_1.png': 'weidu_zhedie_cover.jpg',
+  'pinpai_xushi_1.png': 'regenerated_image_1779820981837.jpg',
+  'pinpai_xushi_2.png': 'regenerated_image_1779820983347.jpg',
+  'wangluo_qushi_1.png': 'regenerated_image_1779820983347.jpg',
+  'wangluo_qushi_2.png': 'yunduan_huxi_cover.png',
+  'wangluo_qushi_3.png': 'minimalist_symbol_cover.jpg',
+  'wangluo_qushi_4.png': 'weidu_zhedie_cover.jpg',
+  'wangluo_qushi_5.png': 'regenerated_image_1779820977423.jpg',
+  'wangluo_qushi_6.png': 'regenerated_image_1779820981837.jpg',
+  'chuangyi_gongzuoliu_1.png': 'grape_billboard_mockup_1779821815613.png',
+  'yunduan_huxi_1.png': 'yunduan_huxi_cover.png',
+  'yunduan_huxi_2.png': 'regenerated_image_1779820977423.jpg',
+  'yunduan_huxi_3.png': 'regenerated_image_1779820981837.jpg',
+  'guangying_zhixi_1.png': 'regenerated_image_1779820977423.jpg',
+  'guangying_zhixi_2.png': 'regenerated_image_1779820983347.jpg',
+  'jingmi_xushi_1.png': 'regenerated_image_1779820983347.jpg',
+  'jijian_shiyanshi_1.png': 'grape_billboard_mockup_1779821815613.png',
+  'saibo_mengjing_1.png': 'regenerated_image_1779820981837.jpg',
+  'saibo_mengjing_2.png': 'regenerated_image_1779820983347.jpg',
+  'saibo_mengjing_3.png': 'yunduan_huxi_cover.png',
+  'saibo_mengjing_4.png': 'minimalist_symbol_cover.jpg',
+  'minimalist_symbol_1.png': 'minimalist_symbol_cover.jpg',
+  'minimalist_symbol_2.png': 'weidu_zhedie_cover.jpg',
+  'minimalist_symbol_3.png': 'regenerated_image_1779820977423.jpg',
+  'minimalist_symbol_4.png': 'regenerated_image_1779820981837.jpg',
+};
+
 const getProductionImageUrl = (url: string | undefined, projectId?: number): string => {
   if (!url) return "";
   const s = url.trim();
@@ -90,17 +135,31 @@ const getProductionImageUrl = (url: string | undefined, projectId?: number): str
 
   if (s.startsWith('/assets/images/') || s.startsWith('assets/images/') || s.includes('/assets/images/')) {
     const filename = s.split('/').pop() || "";
-    // If it's a known small asset that is already in use locally, we can keep it local
-    const localSaves = [
-      'wechat_qr_code_1779411325119.png',
-      'yunduan_huxi_cover.png',
-      'weidu_zhedie_cover.jpg',
-      'minimalist_symbol_cover.jpg'
-    ];
-    if (localSaves.includes(filename)) {
-      return s;
+    
+    // Check if we have an explicit mapping for this item
+    const mapped = IMAGE_MAPPINGS[filename];
+    if (mapped) {
+      return `/assets/images/${mapped}`;
     }
-    return `https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
+
+    // Otherwise if it's already an existing local file, serve it directly
+    const ACTUAL_EXISTING_IMAGES = [
+      'grape_billboard_mockup_1779821815613.png',
+      'minimalist_symbol_cover.jpg',
+      'regenerated_image_1779402488740.jpg',
+      'regenerated_image_1779820977423.jpg',
+      'regenerated_image_1779820981837.jpg',
+      'regenerated_image_1779820983347.jpg',
+      'wechat_qr_code_1779411325119.png',
+      'weidu_zhedie_cover.jpg',
+      'yunduan_huxi_cover.png'
+    ];
+    if (ACTUAL_EXISTING_IMAGES.includes(filename)) {
+      return `/assets/images/${filename}`;
+    }
+
+    // Default safe background fallback
+    return `/assets/images/regenerated_image_1779820977423.jpg`;
   }
 
   return s;
@@ -390,7 +449,7 @@ const Hero = () => {
       if (savedBlob instanceof Blob) {
         setHeroVideoUrl(URL.createObjectURL(savedBlob));
       } else {
-        setHeroVideoUrl("https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/hero.mp4");
+        setHeroVideoUrl("https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/hero.mp4");
       }
     };
     loadHeroVideo();
@@ -559,8 +618,8 @@ const SKILLS_DATA = [
 
 export default function App() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isEditMode, setIsEditMode] = useState(true);
-  const [isEditAllowed, setIsEditAllowed] = useState(true);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isEditAllowed, setIsEditAllowed] = useState(false);
   const [isSyncPanelOpen, setIsSyncPanelOpen] = useState(false);
   const [syncTab, setSyncTab] = useState<'export' | 'import'>('export');
   const [importJsonText, setImportJsonText] = useState("");
@@ -573,15 +632,22 @@ export default function App() {
   const selectedProject = PROJECTS.find(p => p.id === selectedId);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
+  
+  useEffect(() => {
+    // Every time we switch project or page, start isVideoLoading as true
+    setIsVideoLoading(true);
+  }, [selectedId, currentImgIndex]);
 
   useEffect(() => {
-    // 检查URL中的 ?edit 参数或 localStorage 是否已授权编辑或者默认为 true
+    // 检查URL中的 ?edit 参数或 localStorage 是否已授权编辑
     const params = new URLSearchParams(window.location.search);
-    if (params.has('edit') || localStorage.getItem('allow-edit') === 'false') {
-      if (params.get('edit') === 'false' || localStorage.getItem('allow-edit') === 'false') {
-        setIsEditAllowed(false);
-        setIsEditMode(false);
-      }
+    if (params.get('edit') === 'true' || localStorage.getItem('allow-edit') === 'true') {
+      setIsEditAllowed(true);
+      setIsEditMode(true);
+    } else {
+      setIsEditAllowed(false);
+      setIsEditMode(false);
     }
   }, []);
 
@@ -1331,7 +1397,26 @@ export default function App() {
                                       muted={!selectedProject.hasSound} 
                                       loop 
                                       playsInline
+                                      onLoadStart={() => setIsVideoLoading(true)}
+                                      onWaiting={() => setIsVideoLoading(true)}
+                                      onPlaying={() => setIsVideoLoading(false)}
+                                      onCanPlay={() => setIsVideoLoading(false)}
+                                      onLoadedData={() => setIsVideoLoading(false)}
                                     />
+                                    
+                                    {/* Precise loading indicator overlay to prevent black screens */}
+                                    {isVideoLoading && (
+                                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-950/80 backdrop-blur-xs z-30 transition-all pointer-events-none">
+                                        <div className="relative w-12 h-12 flex items-center justify-center">
+                                          <div className="absolute inset-0 rounded-full border-2 border-white/10" />
+                                          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-400 animate-spin" />
+                                        </div>
+                                        <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-white/60 font-sans font-medium">
+                                          视频载入中 · Loading Aesthetic Media...
+                                        </span>
+                                      </div>
+                                    )}
+
                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
                                       <button 
                                         onClick={handleReplay}
