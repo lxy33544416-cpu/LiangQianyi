@@ -387,6 +387,79 @@ const PROJECTS: Project[] = [
 
 // --- Components ---
 
+interface VideoPlayerProps {
+  src: string;
+  hasSound: boolean;
+  onReplay: (e: React.MouseEvent) => void;
+  videoRef: React.RefObject<HTMLVideoElement | null>;
+}
+
+const VideoPlayer = ({ src, hasSound, onReplay, videoRef }: VideoPlayerProps) => {
+  const [loading, setLoading] = useState(true);
+
+  // When src changes, force loading state to true immediately during render to avoid flickers
+  const prevSrc = useRef(src);
+  if (prevSrc.current !== src) {
+    prevSrc.current = src;
+    setLoading(true);
+  }
+
+  return (
+    <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
+      {/* Background ambient video */}
+      <video 
+        key={`bg-ambient-${src}`}
+        src={src}
+        className="absolute inset-0 w-full h-full object-cover opacity-25 blur-3xl scale-110 pointer-events-none select-none"
+        autoPlay 
+        muted 
+        loop 
+        playsInline
+      />
+      {/* Main interactive video */}
+      <video 
+        ref={videoRef}
+        key={src}
+        src={src}
+        className="relative z-10 w-full h-full object-contain"
+        autoPlay 
+        muted={!hasSound} 
+        loop 
+        playsInline
+        onLoadStart={() => setLoading(true)}
+        onWaiting={() => setLoading(true)}
+        onPlaying={() => setLoading(false)}
+        onCanPlay={() => setLoading(false)}
+        onLoadedData={() => setLoading(false)}
+      />
+      
+      {/* Precise loading indicator overlay to prevent black screens */}
+      {loading && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-950/85 backdrop-blur-xs z-30 transition-all pointer-events-none">
+          <div className="relative w-12 h-12 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border-2 border-white/10 animate-pulse" />
+            <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-400 animate-spin" />
+          </div>
+          <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-white/60 font-sans font-medium">
+            视频载入中 · Loading Aesthetic Media...
+          </span>
+        </div>
+      )}
+
+      {/* Play/Replay hover overlays */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity duration-300 z-20 animate-fade-in">
+        <button 
+          onClick={onReplay}
+          className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex flex-col items-center justify-center text-white shadow-2xl transition-all hover:scale-110 hover:bg-white/20 active:scale-95 cursor-pointer"
+        >
+          <Play size={32} fill="currentColor" className="ml-1 mb-1" />
+          <span className="text-[9px] font-bold tracking-widest uppercase">重播 · Replay</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const Navbar = ({ 
   onToggleEdit, 
   isEditMode, 
@@ -425,14 +498,6 @@ const Navbar = ({
       <a href="#contact" className="hover:text-purple-600 transition-colors">联系我</a>
     </div>
     <div className="flex items-center gap-4">
-      {isEditAllowed && (
-        <button 
-          onClick={onToggleEdit}
-          className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all border ${isEditMode ? 'bg-purple-600 border-purple-500 text-white shadow-md shadow-purple-500/20' : 'bg-stone-50 text-stone-500 border-stone-200 hover:text-purple-600 hover:border-purple-300'}`}
-        >
-          {isEditMode ? '编辑完毕 · Done' : '编辑网页 · Edit Web'}
-        </button>
-      )}
       <button className="md:hidden p-2 text-stone-800">
         <Menu size={24} />
       </button>
@@ -442,6 +507,7 @@ const Navbar = ({
 
 const Hero = () => {
   const [heroVideoUrl, setHeroVideoUrl] = useState<string>("");
+  const [heroLoading, setHeroLoading] = useState(true);
 
   useEffect(() => {
     const loadHeroVideo = async () => {
@@ -514,15 +580,30 @@ const Hero = () => {
               onChange={handleVideoUpload}
             />
             {heroVideoUrl ? (
-              <video 
-                key={heroVideoUrl}
-                src={heroVideoUrl}
-                className="w-full h-full object-contain"
-                autoPlay 
-                muted 
-                loop 
-                playsInline
-              />
+              <div className="relative w-full h-full min-h-[120px] md:min-h-[220px]">
+                <video 
+                  key={heroVideoUrl}
+                  src={heroVideoUrl}
+                  className="w-full h-full object-contain"
+                  autoPlay 
+                  muted 
+                  loop 
+                  playsInline
+                  onLoadStart={() => setHeroLoading(true)}
+                  onWaiting={() => setHeroLoading(true)}
+                  onPlaying={() => setHeroLoading(false)}
+                  onCanPlay={() => setHeroLoading(false)}
+                  onLoadedData={() => setHeroLoading(false)}
+                />
+                {heroLoading && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-950/40 backdrop-blur-xs z-20 pointer-events-none rounded-xl">
+                    <div className="relative w-8 h-8 flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full border border-white/10" />
+                      <div className="absolute inset-0 rounded-full border border-transparent border-t-purple-400 animate-spin" />
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2">
                 <Play className="w-8 h-8 text-stone-500 opacity-20 group-hover/slot:opacity-60 transition-opacity" />
@@ -632,12 +713,7 @@ export default function App() {
   const selectedProject = PROJECTS.find(p => p.id === selectedId);
   const [currentImgIndex, setCurrentImgIndex] = useState(0);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoLoading, setIsVideoLoading] = useState(false);
-  
-  useEffect(() => {
-    // Every time we switch project or page, start isVideoLoading as true
-    setIsVideoLoading(true);
-  }, [selectedId, currentImgIndex]);
+
 
   useEffect(() => {
     // 检查URL中的 ?edit 参数或 localStorage 是否已授权编辑
@@ -1378,55 +1454,12 @@ export default function App() {
                                     />
                                   </div>
                                 ) : (
-                                  <div className="w-full h-full relative flex items-center justify-center overflow-hidden">
-                                    <video 
-                                      key={`bg-ambient-${projectVideo}`}
-                                      src={getProductionVideoUrl(projectVideo)}
-                                      className="absolute inset-0 w-full h-full object-cover opacity-25 blur-3xl scale-110 pointer-events-none select-none"
-                                      autoPlay 
-                                      muted 
-                                      loop 
-                                      playsInline
-                                    />
-                                    <video 
-                                      ref={modalVideoRef}
-                                      key={projectVideo}
-                                      src={getProductionVideoUrl(projectVideo)}
-                                      className="relative z-10 w-full h-full object-contain"
-                                      autoPlay 
-                                      muted={!selectedProject.hasSound} 
-                                      loop 
-                                      playsInline
-                                      onLoadStart={() => setIsVideoLoading(true)}
-                                      onWaiting={() => setIsVideoLoading(true)}
-                                      onPlaying={() => setIsVideoLoading(false)}
-                                      onCanPlay={() => setIsVideoLoading(false)}
-                                      onLoadedData={() => setIsVideoLoading(false)}
-                                    />
-                                    
-                                    {/* Precise loading indicator overlay to prevent black screens */}
-                                    {isVideoLoading && (
-                                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-stone-950/80 backdrop-blur-xs z-30 transition-all pointer-events-none">
-                                        <div className="relative w-12 h-12 flex items-center justify-center">
-                                          <div className="absolute inset-0 rounded-full border-2 border-white/10" />
-                                          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-400 animate-spin" />
-                                        </div>
-                                        <span className="mt-4 text-[10px] uppercase tracking-[0.2em] text-white/60 font-sans font-medium">
-                                          视频载入中 · Loading Aesthetic Media...
-                                        </span>
-                                      </div>
-                                    )}
-
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/video:opacity-100 transition-opacity duration-300">
-                                      <button 
-                                        onClick={handleReplay}
-                                        className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex flex-col items-center justify-center text-white shadow-2xl transition-all hover:scale-110 hover:bg-white/20 active:scale-95 cursor-pointer z-40"
-                                      >
-                                        <Play size={32} fill="currentColor" className="ml-1 mb-1" />
-                                        <span className="text-[9px] font-bold tracking-widest uppercase">重播 · Replay</span>
-                                      </button>
-                                    </div>
-                                  </div>
+                                  <VideoPlayer 
+                                    src={getProductionVideoUrl(projectVideo)}
+                                    hasSound={!!selectedProject.hasSound}
+                                    onReplay={handleReplay}
+                                    videoRef={modalVideoRef}
+                                  />
                                 )}
                               </div>
                             ) : (
