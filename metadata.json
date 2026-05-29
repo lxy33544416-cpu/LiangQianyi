@@ -1,0 +1,8 @@
+{
+  "name": "梁倩怡 - 个人作品集",
+  "description": "梁倩怡的个人数字作品集，极致通透、梦幻、高级感的视觉展示。",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
