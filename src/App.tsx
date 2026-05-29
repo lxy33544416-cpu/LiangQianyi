@@ -75,7 +75,7 @@ const getProductionVideoUrl = (url: string | undefined): string => {
   const s = url.trim();
   if (s.startsWith('/assets/videos/')) {
     const filename = s.substring('/assets/videos/'.length);
-    return `https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
+    return `https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
   }
   return s;
 };
@@ -100,7 +100,7 @@ const getProductionImageUrl = (url: string | undefined, projectId?: number): str
     if (localSaves.includes(filename)) {
       return s;
     }
-    return `https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
+    return `https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
   }
 
   return s;
