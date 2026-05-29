@@ -136,30 +136,17 @@ const getProductionImageUrl = (url: string | undefined, projectId?: number): str
   if (s.startsWith('/assets/images/') || s.startsWith('assets/images/') || s.includes('/assets/images/')) {
     const filename = s.split('/').pop() || "";
     
-    // Check if it's already an existing local file, serve it directly
-    const ACTUAL_EXISTING_IMAGES = [
-      'grape_billboard_mockup_1779821815613.png',
-      'minimalist_symbol_cover.jpg',
+    // Check if it's the local avatar or WeChat QR code, which are static local files
+    const LOCAL_UI_IMAGES = [
       'regenerated_image_1779402488740.jpg',
-      'regenerated_image_1779820977423.jpg',
-      'regenerated_image_1779820981837.jpg',
-      'regenerated_image_1779820983347.jpg',
-      'wechat_qr_code_1779411325119.png',
-      'weidu_zhedie_cover.jpg',
-      'yunduan_huxi_cover.png'
+      'wechat_qr_code_1779411325119.png'
     ];
-    if (ACTUAL_EXISTING_IMAGES.includes(filename)) {
+    if (LOCAL_UI_IMAGES.includes(filename)) {
       return `/assets/images/${filename}`;
     }
 
-    // Check if we have an explicit mapping for this item
-    const mapped = IMAGE_MAPPINGS[filename];
-    if (mapped) {
-      return `/assets/images/${mapped}`;
-    }
-
-    // Direct proxy to CDN-accelerated Github Release for custom images (same as videos)
-    // This allows the user to simply upload their project images to the Release and they will load perfectly!
+    // Direct proxy to CDN-accelerated Github Release for ALL core project/portfolio images (same as videos!)
+    // This allows you to simply upload your project images to the Release and they will load perfectly!
     return `https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
   }
 
@@ -220,7 +207,11 @@ const PROJECTS: Project[] = [
     images: [
       "/assets/images/weidu_zhedie_1.png"
     ],
-    videoPages: [""],
+    videoPages: [
+      "/assets/videos/weidu_zhedie_1.mp4"
+    ],
+    isVideo: true,
+    hasSound: true,
     details: "针对大型艺术策展进行的3D建模与预演。每一处光源的折射角度都经过精确调校，确保线下落地效果与设计稿高度一致。"
   },
   {
@@ -330,8 +321,14 @@ const PROJECTS: Project[] = [
       "/assets/images/saibo_mengjing_3.png",
       "/assets/images/saibo_mengjing_4.png"
     ],
-    videoPages: ["", "", "", ""],
+    videoPages: [
+      "/assets/videos/saibo_mengjing_1.mp4",
+      "/assets/videos/saibo_mengjing_2.mp4",
+      "",
+      ""
+    ],
     hasSound: true,
+    isVideo: true,
     details: "我的创意流程遵循四个严苛阶段：\n01灵感触发：构建跨行业情绪板，确保品牌基因的独特性。\n02数字化预演：利用3D建模与AI辅助对构图进行微克级的校对。\n03负空间设计：在每一个像素点寻找呼吸感，拒绝视觉溢出。\n04跨平台闭环：确保从巨幕、网页到移动端的调性绝对统一。"
   },
   {
@@ -740,8 +737,15 @@ export default function App() {
         for (const [projectId, blobs] of Object.entries(saved)) {
           if (Array.isArray(blobs)) {
             overrides[Number(projectId)] = blobs
-              .map(blob => blob instanceof Blob ? URL.createObjectURL(blob) : (typeof blob === 'string' ? blob : ""))
-              .filter(val => val !== "" && !val.startsWith("blob:"));
+              .map(blob => {
+                if (blob instanceof Blob) {
+                  return URL.createObjectURL(blob);
+                } else if (typeof blob === 'string' && !blob.startsWith("blob:")) {
+                  return blob;
+                }
+                return "";
+              })
+              .filter(val => val !== "");
           }
         }
         setProjectVideoOverrides(overrides);
@@ -754,8 +758,15 @@ export default function App() {
         for (const [projectId, blobs] of Object.entries(saved)) {
           if (Array.isArray(blobs)) {
             overrides[Number(projectId)] = blobs
-              .map(blob => blob instanceof Blob ? URL.createObjectURL(blob) : (typeof blob === 'string' ? blob : ""))
-              .filter(val => val !== "" && !val.startsWith("blob:"));
+              .map(blob => {
+                if (blob instanceof Blob) {
+                  return URL.createObjectURL(blob);
+                } else if (typeof blob === 'string' && !blob.startsWith("blob:")) {
+                  return blob;
+                }
+                return "";
+              })
+              .filter(val => val !== "");
           }
         }
         setProjectImageOverrides(overrides);
