@@ -33,7 +33,8 @@ import {
   Edit2,
   Save,
   Plus,
-  Copy
+  Copy,
+  ZoomIn
 } from 'lucide-react';
 import { get, set } from 'idb-keyval';
 
@@ -459,40 +460,78 @@ const Navbar = ({
   isEditMode?: boolean; 
   isEditAllowed?: boolean; 
   onAvatarClick?: () => void; 
-}) => (
-  <nav className="fixed top-0 left-0 w-full z-50 px-8 py-4 flex justify-between items-center bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-sm">
-    <div className="flex items-center gap-4">
-      <div 
-        onClick={onAvatarClick}
-        title={isEditAllowed ? "双击或点击此头像进入/退出编辑模式" : "梁倩怡的作品集"}
-        className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border-2 border-purple-400 cursor-pointer hover:scale-105 active:scale-95 transition-transform flex items-center justify-center shadow-md relative"
-      >
-        <img src={getProductionImageUrl(avatarImg)} alt="头像" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = avatarImg; }} />
-        {isEditMode && (
-          <span className="absolute inset-0 bg-purple-500/20 flex items-center justify-center text-[10px] text-white font-bold uppercase tracking-wider">
-            Edit
-          </span>
-        )}
+}) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <nav className="fixed top-0 left-0 w-full z-50 px-8 py-4 flex justify-between items-center bg-white/80 backdrop-blur-2xl border-b border-stone-200/50 shadow-sm animate-fade-in">
+      <div className="flex items-center gap-4">
+        <div 
+          className="relative" 
+          onMouseEnter={() => setIsHovered(true)} 
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div 
+            onClick={onAvatarClick}
+            title="梁倩怡的个人头像"
+            className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border border-stone-200 shadow-sm ring-2 ring-stone-900/5 hover:ring-purple-400/50 hover:border-purple-300 active:scale-95 transition-all flex items-center justify-center relative cursor-pointer"
+          >
+            <img src={getProductionImageUrl(avatarImg)} alt="头像" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = avatarImg; }} />
+          </div>
+
+          <AnimatePresence>
+            {isHovered && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="absolute left-0 top-12 w-64 bg-white/95 backdrop-blur-2xl rounded-3xl border border-stone-200/80 shadow-2xl p-3 z-50 pointer-events-none"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-stone-100 shadow-inner">
+                  <img 
+                    src={getProductionImageUrl(avatarImg)} 
+                    alt="梁倩怡 高清头像" 
+                    className="w-full h-full object-cover animate-fade-in" 
+                    onError={(e) => { e.currentTarget.src = avatarImg; }}
+                  />
+                  
+                  {/* Hover 放大镜小指示器 */}
+                  <div className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-stone-900/80 backdrop-blur-md flex items-center justify-center text-white shadow-lg">
+                    <ZoomIn size={14} strokeWidth={2.5} />
+                  </div>
+                </div>
+                <div className="mt-3 px-1 flex justify-between items-center">
+                  <div>
+                    <span className="text-serif text-sm font-semibold text-stone-800 block leading-none">梁倩怡</span>
+                    <span className="text-[9px] uppercase tracking-wider text-stone-400 font-bold block mt-1 font-mono">QIANYI LIANG</span>
+                  </div>
+                  <span className="text-[10px] px-2.5 py-1 bg-gradient-to-r from-purple-500/10 to-stone-500/10 rounded-full text-purple-600 font-medium text-[9px] uppercase tracking-wider">1:1 Zoom</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <div>
+          <span className="text-serif text-lg font-medium tracking-widest text-stone-900 block leading-none">梁倩怡</span>
+          <span className="text-[9px] uppercase tracking-widest text-stone-400 font-bold font-mono">Creative Portfolio</span>
+        </div>
       </div>
-      <div>
-        <span className="text-serif text-lg font-medium tracking-widest text-stone-900 block leading-none">梁倩怡</span>
-        <span className="text-[9px] uppercase tracking-widest text-stone-400 font-bold font-mono">Creative Portfolio</span>
+      <div className="hidden md:flex gap-12 text-[12px] tracking-[0.3em] font-medium text-stone-500 uppercase">
+        <a href="#home" className="hover:text-purple-600 transition-colors">首页</a>
+        <a href="#about" className="hover:text-purple-600 transition-colors">关于我</a>
+        <a href="#portfolio" className="hover:text-purple-600 transition-colors">作品集</a>
+        <a href="#skills" className="hover:text-purple-600 transition-colors">技能</a>
+        <a href="#contact" className="hover:text-purple-600 transition-colors">联系我</a>
       </div>
-    </div>
-    <div className="hidden md:flex gap-12 text-[12px] tracking-[0.3em] font-medium text-stone-500 uppercase">
-      <a href="#home" className="hover:text-purple-600 transition-colors">首页</a>
-      <a href="#about" className="hover:text-purple-600 transition-colors">关于我</a>
-      <a href="#portfolio" className="hover:text-purple-600 transition-colors">作品集</a>
-      <a href="#skills" className="hover:text-purple-600 transition-colors">技能</a>
-      <a href="#contact" className="hover:text-purple-600 transition-colors">联系我</a>
-    </div>
-    <div className="flex items-center gap-4">
-      <button className="md:hidden p-2 text-stone-800">
-        <Menu size={24} />
-      </button>
-    </div>
-  </nav>
-);
+      <div className="flex items-center gap-4">
+        <button className="md:hidden p-2 text-stone-800">
+          <Menu size={24} />
+        </button>
+      </div>
+    </nav>
+  );
+};
 
 const Hero = () => {
   const [heroVideoUrl, setHeroVideoUrl] = useState<string>("");
@@ -1345,10 +1384,16 @@ export default function App() {
                 <Mail size={18} />
                 <span className="text-sm font-medium tracking-widest">发送邮件联系</span>
               </button>
-              <button className="flex items-center gap-3 px-8 py-4 glass-card text-stone-900 rounded-xl hover:bg-white/60 transition-all active:scale-95">
-                <Download size={18} />
-                <span className="text-sm font-medium tracking-widest">简历/作品集下载</span>
-              </button>
+              <a 
+                href="https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/resume.pdf" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                download="梁倩怡_简历.pdf"
+                className="flex items-center gap-3 px-8 py-4 glass-card text-stone-900 rounded-xl hover:bg-white/60 transition-all active:scale-95 cursor-pointer no-underline group"
+              >
+                <Download size={18} className="group-hover:translate-y-0.5 transition-transform" />
+                <span className="text-sm font-medium tracking-widest">简历下载</span>
+              </a>
             </div>
           </div>
           
@@ -1767,121 +1812,6 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {isEditMode && (
-        <div className="fixed bottom-6 right-6 z-[300] flex flex-col items-end gap-3 pointer-events-auto">
-          {isSyncPanelOpen ? (
-            <div className="w-[360px] max-h-[550px] overflow-y-auto bg-stone-900 border border-white/10 text-white rounded-3xl shadow-2xl p-6 flex flex-col gap-4 backdrop-blur-2xl">
-              <div className="flex justify-between items-center pb-2 border-b border-white/10">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-purple-400">同步面板 · Sync Panel</span>
-                </div>
-                <button 
-                  onClick={() => setIsSyncPanelOpen(false)}
-                  className="text-stone-400 hover:text-white transition-colors"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-
-              {/* Tabs */}
-              <div className="grid grid-cols-2 gap-1.5 p-1 bg-stone-950 rounded-xl border border-white/5">
-                <button
-                  type="button"
-                  onClick={() => setSyncTab('export')}
-                  className={`py-1.5 rounded-lg text-xs font-bold transition-all ${syncTab === 'export' ? 'bg-purple-600 text-white shadow-md' : 'text-stone-400 hover:text-stone-200'}`}
-                >
-                  导出配置 · Export
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSyncTab('import')}
-                  className={`py-1.5 rounded-lg text-xs font-bold transition-all ${syncTab === 'import' ? 'bg-purple-600 text-white shadow-md' : 'text-stone-400 hover:text-stone-200'}`}
-                >
-                  导入配置 · Import
-                </button>
-              </div>
-
-              {syncTab === 'export' ? (
-                <>
-                  <div className="text-[12px] text-stone-300 leading-relaxed space-y-2 text-left">
-                    <p>📋 <strong className="text-white">如何同步我的修改并在正式网站中生效？</strong></p>
-                    <p className="text-stone-400 leading-snug text-xs font-serif">由于网页上的“上传或粘贴链接"仅临时存储在您的本地浏览器数据库中。当发布 (Publish) 或他人访问时，他人是看不到这些本地修改的。</p>
-                    <p className="text-stone-400 leading-snug text-xs font-serif">请点击下方的 <strong className="text-purple-400">「一键复制 · Copy」</strong> 按钮，然后将这段配置代码在聊天对话框发给我，我将立即永久固化写入系统源代码中！</p>
-                  </div>
-
-                  <div className="relative text-left flex flex-col gap-2">
-                    <textarea 
-                      readOnly
-                      className="w-full h-40 bg-stone-950 border border-white/10 rounded-xl p-3 text-[11px] font-mono text-stone-400 focus:outline-none"
-                      value={getSyncJson()}
-                    />
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(getSyncJson());
-                        alert("同步配置复制成功！请将它粘贴发给我，我会在系统源码中为您硬编码保存。");
-                      }}
-                      className="absolute bottom-3 right-3 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[10px] font-bold tracking-wider uppercase transition-all flex items-center gap-1 cursor-pointer active:scale-95"
-                    >
-                      <Copy size={12} />
-                      一键复制 · Copy
-                    </button>
-                  </div>
-
-                  <div className="text-[10px] text-stone-400 font-bold bg-white/5 py-2 px-3 rounded-lg flex items-center justify-between text-left">
-                    <span>网络外链: {
-                      (Object.values(projectVideoOverrides).flatMap(x => x) as string[]).filter(u => u && !u.startsWith('blob:')).length +
-                      (Object.values(projectImageOverrides).flatMap(x => x) as string[]).filter(u => u && !u.startsWith('blob:')).length
-                    } 项</span>
-                    <span>本地文件: {
-                      (Object.values(projectVideoOverrides).flatMap(x => x) as string[]).filter(u => u && u.startsWith('blob:')).length +
-                      (Object.values(projectImageOverrides).flatMap(x => x) as string[]).filter(u => u && u.startsWith('blob:')).length
-                    } 项</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="text-[12px] text-stone-300 leading-relaxed space-y-1 text-left">
-                    <p>📥 <strong className="text-white">导入已有配置 JSON</strong></p>
-                    <p className="text-stone-400 leading-snug text-xs font-serif">您可以直接在下方框中粘贴您以前导出的 JSON 代码，点击「确认导入」以立即恢复所有修改过的文字和外链。</p>
-                  </div>
-
-                  <div className="relative text-left flex flex-col gap-3">
-                    <textarea 
-                      className="w-full h-40 bg-stone-950 border border-white/10 rounded-xl p-3 text-[11px] font-mono text-stone-300 focus:outline-none focus:border-purple-500/40"
-                      placeholder='请在此处粘贴 JSON 配置...'
-                      value={importJsonText}
-                      onChange={(e) => setImportJsonText(e.target.value)}
-                    />
-                    <button
-                      onClick={() => {
-                        if (!importJsonText.trim()) {
-                          alert("请输入有效的 JSON 配置！");
-                          return;
-                        }
-                        handleImportConfig(importJsonText);
-                      }}
-                      className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 shadow-lg shadow-purple-600/20 text-center"
-                    >
-                      <Download size={13} />
-                      确认导入配置 · Import Config
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ) : (
-            <button
-              onClick={() => setIsSyncPanelOpen(true)}
-              className="px-5 py-3.5 bg-purple-600 hover:bg-purple-700 text-white border border-purple-500 rounded-full shadow-2xl flex items-center gap-2.5 font-bold text-[11px] tracking-widest uppercase transition-all duration-300 transform scale-100 hover:scale-105 active:scale-[0.96] animate-bounce"
-            >
-              <Save size={14} className="animate-pulse text-purple-200" />
-              <span>同步我的网页修改 · Sync Website</span>
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }
