@@ -136,13 +136,7 @@ const getProductionImageUrl = (url: string | undefined, projectId?: number): str
   if (s.startsWith('/assets/images/') || s.startsWith('assets/images/') || s.includes('/assets/images/')) {
     const filename = s.split('/').pop() || "";
     
-    // Check if we have an explicit mapping for this item
-    const mapped = IMAGE_MAPPINGS[filename];
-    if (mapped) {
-      return `/assets/images/${mapped}`;
-    }
-
-    // Otherwise if it's already an existing local file, serve it directly
+    // Check if it's already an existing local file, serve it directly
     const ACTUAL_EXISTING_IMAGES = [
       'grape_billboard_mockup_1779821815613.png',
       'minimalist_symbol_cover.jpg',
@@ -158,8 +152,15 @@ const getProductionImageUrl = (url: string | undefined, projectId?: number): str
       return `/assets/images/${filename}`;
     }
 
-    // Default safe background fallback
-    return `/assets/images/regenerated_image_1779820977423.jpg`;
+    // Check if we have an explicit mapping for this item
+    const mapped = IMAGE_MAPPINGS[filename];
+    if (mapped) {
+      return `/assets/images/${mapped}`;
+    }
+
+    // Direct proxy to CDN-accelerated Github Release for custom images (same as videos)
+    // This allows the user to simply upload their project images to the Release and they will load perfectly!
+    return `https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
   }
 
   return s;
@@ -738,9 +739,9 @@ export default function App() {
         const overrides: Record<number, string[]> = {};
         for (const [projectId, blobs] of Object.entries(saved)) {
           if (Array.isArray(blobs)) {
-            overrides[Number(projectId)] = blobs.map(blob => 
-              blob instanceof Blob ? URL.createObjectURL(blob) : (typeof blob === 'string' ? blob : "")
-            );
+            overrides[Number(projectId)] = blobs
+              .map(blob => blob instanceof Blob ? URL.createObjectURL(blob) : (typeof blob === 'string' ? blob : ""))
+              .filter(val => val !== "" && !val.startsWith("blob:"));
           }
         }
         setProjectVideoOverrides(overrides);
@@ -752,9 +753,9 @@ export default function App() {
         const overrides: Record<number, string[]> = {};
         for (const [projectId, blobs] of Object.entries(saved)) {
           if (Array.isArray(blobs)) {
-            overrides[Number(projectId)] = blobs.map(blob => 
-              blob instanceof Blob ? URL.createObjectURL(blob) : (typeof blob === 'string' ? blob : "")
-            );
+            overrides[Number(projectId)] = blobs
+              .map(blob => blob instanceof Blob ? URL.createObjectURL(blob) : (typeof blob === 'string' ? blob : ""))
+              .filter(val => val !== "" && !val.startsWith("blob:"));
           }
         }
         setProjectImageOverrides(overrides);
@@ -767,7 +768,7 @@ export default function App() {
         for (const [projectId, blob] of Object.entries(saved)) {
           if (blob instanceof Blob) {
             overrides[Number(projectId)] = URL.createObjectURL(blob);
-          } else if (typeof blob === 'string') {
+          } else if (typeof blob === 'string' && !blob.startsWith("blob:")) {
             overrides[Number(projectId)] = blob;
           }
         }
@@ -1078,6 +1079,9 @@ export default function App() {
                         alt={projTitle} 
                         className="w-full h-auto object-cover transition-transform duration-[1.5s] group-hover:scale-105"
                         loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/images/regenerated_image_1779820977423.jpg";
+                        }}
                       />
                       {/* 更替封面选项 (已启用编辑模式) */}
                       {isEditMode && (
@@ -1469,6 +1473,9 @@ export default function App() {
                                   src={getProductionImageUrl(projectImageOverrides[selectedProject.id]?.[currentImgIndex] || selectedProject.images[currentImgIndex], selectedProject.id)} 
                                   className="w-full h-full object-contain p-6 md:p-12 mb-6" 
                                   alt={`${selectedProject.title} - Page ${currentImgIndex + 1}`} 
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/assets/images/regenerated_image_1779820977423.jpg";
+                                  }}
                                 />
                               </div>
                             )}
@@ -1617,6 +1624,9 @@ export default function App() {
                                   src={getProductionImageUrl(projectCoverOverrides[selectedProject.id] || selectedProject.cover, selectedProject.id)} 
                                   className="w-full h-full object-cover" 
                                   alt="Current Cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/assets/images/regenerated_image_1779820977423.jpg";
+                                  }}
                                 />
                               </div>
                               <label className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg cursor-pointer transition-all active:scale-[0.98] text-[11px] font-bold text-center">
