@@ -136,17 +136,8 @@ const getProductionImageUrl = (url: string | undefined, projectId?: number): str
   if (s.startsWith('/assets/images/') || s.startsWith('assets/images/') || s.includes('/assets/images/')) {
     const filename = s.split('/').pop() || "";
     
-    // Check if it's the local avatar or WeChat QR code, which are static local files
-    const LOCAL_UI_IMAGES = [
-      'regenerated_image_1779402488740.jpg',
-      'wechat_qr_code_1779411325119.png'
-    ];
-    if (LOCAL_UI_IMAGES.includes(filename)) {
-      return `/assets/images/${filename}`;
-    }
-
-    // Direct proxy to CDN-accelerated Github Release for ALL core project/portfolio images (same as videos!)
-    // This allows you to simply upload your project images to the Release and they will load perfectly!
+    // Direct proxy to CDN-accelerated Github Release for ALL core images (including avatar, WeChat QR code, project covers, and slide images)
+    // This allows you to simply upload your images to your GitHub Release and they will load perfectly on Vercel and local environment!
     return `https://ghfast.top/https://github.com/lxy33544416-cpu/LiangQianyi/releases/download/v1.0.0/${filename}`;
   }
 
@@ -476,7 +467,7 @@ const Navbar = ({
         title={isEditAllowed ? "双击或点击此头像进入/退出编辑模式" : "梁倩怡的作品集"}
         className="w-10 h-10 rounded-full bg-stone-200 overflow-hidden border-2 border-purple-400 cursor-pointer hover:scale-105 active:scale-95 transition-transform flex items-center justify-center shadow-md relative"
       >
-        <img src={avatarImg} alt="头像" className="w-full h-full object-cover" />
+        <img src={getProductionImageUrl(avatarImg)} alt="头像" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = avatarImg; }} />
         {isEditMode && (
           <span className="absolute inset-0 bg-purple-500/20 flex items-center justify-center text-[10px] text-white font-bold uppercase tracking-wider">
             Edit
@@ -1161,9 +1152,10 @@ export default function App() {
             <div className="rounded-[3rem] overflow-hidden glass-card p-4 shadow-2xl shadow-purple-900/5">
               <div className="relative group overflow-hidden rounded-[2.5rem]">
                 <img 
-                  src={skillsHeroImg} 
+                  src={getProductionImageUrl(skillsHeroImg)} 
                   alt="Professional Skills" 
                   className="w-full h-[400px] md:h-[600px] object-cover transition-transform duration-[2s] group-hover:scale-105"
+                  onError={(e) => { e.currentTarget.src = skillsHeroImg; }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-stone-900/60 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-16 left-16 text-white">
@@ -1327,7 +1319,8 @@ export default function App() {
                        className="absolute bottom-8 right-8 md:bottom-12 md:right-12 w-32 h-32 md:w-32 md:h-32 rounded-full overflow-hidden shadow-2xl border-4 border-white/50 z-20 group-hover:scale-110 transition-transform duration-700"
                      >
                        <img 
-                         src={skill.image} 
+                         src={getProductionImageUrl(skill.image)} 
+                         onError={(e) => { e.currentTarget.src = skill.image; }}
                          alt={currentTitle} 
                          className="w-full h-full object-cover grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
                        />
@@ -1380,10 +1373,11 @@ export default function App() {
              </div>
              <div className="p-6 glass-card mt-2">
                 <img 
-                  src={wechatQrCode} 
+                  src={getProductionImageUrl(wechatQrCode)} 
                   alt="WeChat QR Code" 
                   className="w-[120px] h-[120px] mx-auto hover:scale-105 transition-transform duration-300" 
                   referrerPolicy="no-referrer"
+                  onError={(e) => { e.currentTarget.src = wechatQrCode; }}
                 />
                 <p className="text-[10px] text-center text-stone-400 mt-4 uppercase tracking-[0.2em] font-bold">扫码添加微信</p>
              </div>
