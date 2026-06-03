@@ -314,10 +314,10 @@ const PROJECTS: Project[] = [
       "/assets/images/saibo_mengjing_4.png"
     ],
     videoPages: [
+      "/assets/videos/saibo_mengjing_3.mp4",
+      "/assets/videos/saibo_mengjing_4.mp4",
       "/assets/videos/saibo_mengjing_1.mp4",
-      "/assets/videos/saibo_mengjing_2.mp4",
-      "",
-      ""
+      "/assets/videos/saibo_mengjing_2.mp4"
     ],
     hasSound: true,
     isVideo: true,
