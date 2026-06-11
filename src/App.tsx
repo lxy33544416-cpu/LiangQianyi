@@ -100,6 +100,7 @@ const IMAGE_MAPPINGS: Record<string, string> = {
   'huan_cai_5.png': 'minimalist_symbol_cover.jpg',
   'huan_cai_6.png': 'weidu_zhedie_cover.jpg',
   'weidu_zhedie_1.png': 'weidu_zhedie_cover.jpg',
+  'weidu_zhedie_2.png': 'weidu_zhedie_cover.jpg',
   'pinpai_xushi_1.png': 'regenerated_image_1779820981837.jpg',
   'pinpai_xushi_2.png': 'regenerated_image_1779820983347.jpg',
   'wangluo_qushi_1.png': 'regenerated_image_1779820983347.jpg',
@@ -114,6 +115,7 @@ const IMAGE_MAPPINGS: Record<string, string> = {
   'yunduan_huxi_3.png': 'regenerated_image_1779820981837.jpg',
   'guangying_zhixi_1.png': 'regenerated_image_1779820977423.jpg',
   'guangying_zhixi_2.png': 'regenerated_image_1779820983347.jpg',
+  'guangying_zhixi_3.png': 'regenerated_image_1779820981837.jpg',
   'jingmi_xushi_1.png': 'regenerated_image_1779820983347.jpg',
   'jijian_shiyanshi_1.png': 'grape_billboard_mockup_1779821815613.png',
   'saibo_mengjing_1.png': 'regenerated_image_1779820981837.jpg',
@@ -197,10 +199,12 @@ const PROJECTS: Project[] = [
     description: "数字化还原实体活动空间，通过高精度渲染重现光影质感。",
     cover: "/assets/images/weidu_zhedie_cover.jpg",
     images: [
-      "/assets/images/weidu_zhedie_1.png"
+      "/assets/images/weidu_zhedie_1.png",
+      "/assets/images/weidu_zhedie_2.png"
     ],
     videoPages: [
-      "/assets/videos/weidu_zhedie_1.mp4"
+      "/assets/videos/weidu_zhedie_1.mp4",
+      "/assets/videos/weidu_zhedie_2.mp4"
     ],
     isVideo: true,
     hasSound: true,
@@ -291,11 +295,13 @@ const PROJECTS: Project[] = [
     cover: "/assets/images/guangying_zhixi_cover.jpg",
     images: [
       "/assets/images/guangying_zhixi_1.png",
-      "/assets/images/guangying_zhixi_2.png"
+      "/assets/images/guangying_zhixi_2.png",
+      "/assets/images/guangying_zhixi_3.png"
     ],
     videoPages: [
       "/assets/videos/guangying_zhixi_1.mp4",
-      "/assets/videos/guangying_zhixi_2.mp4"
+      "/assets/videos/guangying_zhixi_2.mp4",
+      "/assets/videos/guangying_zhixi_3.mp4"
     ],
     hasSound: true,
     isVideo: true,
